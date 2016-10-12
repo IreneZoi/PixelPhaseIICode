@@ -1,0 +1,298 @@
+{
+  /*  //all clustersize before
+ TFile * f1 = new TFile("../RSPA_dec/100x150/Chewie_Runs581_592_nofit.root");
+ TFile * f2 = new TFile("../RSPA_dec/50x300/Chewie_Runs581_592_nofit.root");
+ TFile * f3 = new TFile(" ../RSPA_dec/25x600/Chewie_Runs581_592_smallerWindows.root");
+
+ gROOT->SetStyle("Plain");
+ gStyle->SetPadGridX(0);
+ gStyle->SetPadGridY(0);
+ gStyle->SetPadGridX(0);
+ gStyle->SetPadGridY(0);
+ gStyle->SetOptStat(0);
+ TCanvas * c = new TCanvas("c","c",700,700);
+ c->cd();
+ c->SetFrameFillStyle(1000);
+ c->SetFrameFillColor(0);
+ TDirectoryFile * d1  = f1->Get("Resolution/Dut0/YResiduals");
+ d1->cd();
+ TH1F * h22 = d1->Get("hYResiduals_Dut0");
+ h22->SetTitle("");
+ h22->SetLineColor(kBlack);
+ h22->DrawNormalized("same");
+ h22->GetYaxis()->SetRangeUser(0.,0.2);
+ TDirectoryFile * d2  = f2->Get("Resolution/Dut0/YResiduals");
+ d2->cd();
+ TH1F * h11 = d2->Get("hYResiduals_Dut0");
+ TH1F * h6 = d2->Get("hYResidualCalculatedSize2_Dut0");
+ // h11->SetLineStyle(2);
+ h11->SetLineColor(kRed);
+ h11->DrawNormalized("same");
+ TDirectoryFile * d3  = f3->Get("Resolution/Dut0/YResiduals");
+ d2->cd();
+ TH1F * h33 = d3->Get("hYResiduals_Dut0");
+ TH1F * h7 = d3->Get("hYResidualCalculatedSize2_Dut0");
+ // h33->SetLineStyle(3);
+ h33->SetLineColor(kAzure);
+ // h33->GetYaxis()->SetRangeUser(0,0.3);
+ TF1* func;
+ func = h33->GetFunction("gaus");
+ func->SetLineColor(0);
+ h33->DrawNormalized("same");
+ TLatex * tPrel = new TLatex();
+ tPrel->SetNDC();
+ tPrel->SetTextColor(kBlack);
+ tPrel->SetTextSize(0.03027386);
+ tPrel->SetTextFont(42);
+ tPrel->DrawLatex(0.09821429,0.9194523,"Test Beam FNAL, December2015, Dut=RSPA");
+ TLegend *leg = new TLegend(0.7,0.671131,0.88,0.8809524);//,NULL,"brNDC");                                                                           
+ leg->SetBorderSize(1);
+ leg->SetLineColor(0);
+ leg->SetLineStyle(1);
+ leg->SetLineWidth(2);
+ leg->SetFillColor(0);
+ leg->SetFillStyle(0);
+ leg->SetTextSize(0.02);
+ leg->AddEntry(h22,"100x150","lpf");
+ leg->AddEntry(h11,"50x300","lpf");
+ leg->AddEntry(h33,"25x600","lpf");
+ leg->Draw();
+ c->SaveAs("../Tesi/results_images/residualsBeforeNorm.eps");
+ TCanvas * c2 = new TCanvas("c","c",700,700);
+ c2->cd();
+ c2->SetFrameFillStyle(1000);
+ c2->SetFrameFillColor(0);
+ h22->Draw();
+ h22->GetYaxis()->SetRangeUser(0,3000);
+ h11->Draw("same");
+ h33->Draw("same");
+ tPrel->DrawLatex(0.09821429,0.9194523,"Test Beam FNAL, December2015, Dut=RSPA");
+ leg->Draw();
+ c2->SaveAs("../Tesi/results_images/residualsBefore.eps");
+
+ //after 
+ // TFile * f1 = new TFile("../RSPA_dec/100x150/Chewie_Runs581_592_nofit.root");
+ TFile * f5 = new TFile("../IrradiatedSensors/May2016TestBeam/25x600/Chewie_Runs315_318_noFit.root");
+ TFile * f4 = new TFile(" ../IrradiatedSensors/May2016TestBeam/50x300/Chewie_Runs314_325_noFit.root");
+ gROOT->SetStyle("Plain");
+ gStyle->SetPadGridX(0);
+ gStyle->SetPadGridY(0);
+ gStyle->SetPadGridX(0);
+ gStyle->SetPadGridY(0);
+ gStyle->SetOptStat(0);
+ TCanvas * c1 = new TCanvas("c","c",700,700);
+ c1->cd();
+ c1->SetFrameFillStyle(1000);
+ c1->SetFrameFillColor(0);
+ TDirectoryFile * d5  = f5->Get("Resolution/Dut0/YResiduals");
+ d5->cd();
+ TH1F * h3 = d5->Get("hYResiduals_Dut0");
+ TH1F * h5 = d5->Get("hYResidualCalculatedSize2_Dut2");
+ h3->SetTitle("");
+ h3->SetLineColor(kAzure);
+ h3->DrawNormalized("same");
+ TDirectoryFile * d4  = f4->Get("Resolution/Dut0/YResiduals");
+ d4->cd();
+ TH1F * h4 = d4->Get("hYResiduals_Dut0");
+ TH1F * h8 = d4->Get("hYResidualCalculatedSize2_Dut2");
+ // h4 ->SetLineStyle(2);
+ h4 ->SetLineColor(kRed);
+ h4 ->DrawNormalized("same");
+ TLatex * tPrel1= new TLatex();
+ tPrel1->SetNDC();
+ tPrel1->SetTextColor(kBlack);
+ tPrel1->SetTextSize(0.03027386);
+ tPrel1->SetTextFont(42);
+ tPrel1->DrawLatex(0.09821429,0.9194523,"Test Beam FNAL, May2016, Dut=RSPA");
+ TLegend *leg1= new TLegend(0.7,0.671131,0.88,0.8809524);//,NULL,"brNDC");                                                                           
+ leg1->SetBorderSize(1);
+ leg1->SetLineColor(0);
+ leg1->SetLineStyle(1);
+ leg1->SetLineWidth(2);
+ leg1->SetFillColor(0);
+ leg1->SetFillStyle(0);
+ leg1->SetTextSize(0.02);
+ // leg1->AddEntry(h22,"100x150","lpf");
+ leg1->AddEntry(h4,"50x300","lpf");
+ leg1->AddEntry(h3,"25x600","lpf");
+ leg1->Draw();
+ c1->SaveAs("../Tesi/results_images/residualsAfterNorm.eps");
+ TCanvas * c3 = new TCanvas("c","c",700,700);
+ c3->cd();
+ c3->SetFrameFillStyle(1000);
+ c3->SetFrameFillColor(0);
+ h4->Draw();
+ h4->GetYaxis()->SetRangeUser(0,3000);
+ h3->Draw("same");
+ tPrel1->DrawLatex(0.09821429,0.9194523,"Test Beam FNAL, May2016, Dut=RSPA");
+ leg1->Draw();
+ c3->SaveAs("../Tesi/results_images/residualsAfter.eps");
+
+
+ TCanvas * c4 = new TCanvas("c","c",700,700);
+ c4->cd();
+ c4->SetFrameFillStyle(1000);
+ c4->SetFrameFillColor(0);
+ h4->Draw();
+ h4->GetYaxis()->SetRangeUser(0,3000);
+ h11->SetLineStyle(2);
+ h11->Draw("same");
+ TLatex * tPrel2= new TLatex();
+ tPrel2->SetNDC();
+ tPrel2->SetTextColor(kBlack);
+ tPrel2->SetTextSize(0.03027386);
+ tPrel2->SetTextFont(42);
+ tPrel2->DrawLatex(0.09821429,0.9194523,"Test Beam FNAL, December2015 & May2016, Dut=RSPA");
+ TLegend *leg2= new TLegend(0.7,0.671131,0.88,0.8809524);//,NULL,"brNDC");                                                                           
+ leg2->SetBorderSize(1);
+ leg2->SetLineColor(0);
+ leg2->SetLineStyle(1);
+ leg2->SetLineWidth(2);
+ leg2->SetFillColor(0);
+ leg2->SetFillStyle(0);
+ leg2->SetTextSize(0.02);
+ // leg1->AddEntry(h22,"100x150","lpf");
+ leg2->AddEntry(h4,"50x300 after","lpf");
+ leg2->AddEntry(h11,"50x300 pre","lpf");
+ leg2->Draw(); 
+ c4->SaveAs("../Tesi/results_images/residuals50.eps");
+
+ TCanvas * c5 = new TCanvas("c","c",700,700);
+ c5->cd();
+ c5->SetFrameFillStyle(1000);
+ c5->SetFrameFillColor(0);
+ h4->DrawNormalized();
+ h4->GetYaxis()->SetRangeUser(0,3000);
+ h11->SetLineStyle(2);
+ h11->DrawNormalized("same");
+ tPrel2->DrawLatex(0.09821429,0.9194523,"Test Beam FNAL, December2015 & May2016, Dut=RSPA");
+ leg2->Draw(); 
+ c5->SaveAs("../Tesi/results_images/residuals50Norm.eps");
+
+ TCanvas * c6 = new TCanvas("c","c",700,700);
+ c6->cd();
+ c6->SetFrameFillStyle(1000);
+ c6->SetFrameFillColor(0);
+ h3->Draw();
+ h3->GetYaxis()->SetRangeUser(0,3000);
+ h33->SetLineStyle(2);
+ h33->Draw("same");
+ TLatex * tPrel3= new TLatex();
+ tPrel3->SetNDC();
+ tPrel3->SetTextColor(kBlack);
+ tPrel3->SetTextSize(0.03027386);
+ tPrel3->SetTextFont(42);
+ tPrel3->DrawLatex(0.09821429,0.9194523,"Test Beam FNAL, December2015 & May2016, Dut=RSPA");
+ TLegend *leg3= new TLegend(0.7,0.671131,0.88,0.8809524);//,NULL,"brNDC");                                                                           
+ leg3->SetBorderSize(1);
+ leg3->SetLineColor(0);
+ leg3->SetLineStyle(1);
+ leg3->SetLineWidth(2);
+ leg3->SetFillColor(0);
+ leg3->SetFillStyle(0);
+ leg3->SetTextSize(0.02);
+ // leg1->AddEntry(h22,"100x150","lpf");
+ leg3->AddEntry(h3,"25x600 after","lpf");
+ leg3->AddEntry(h33,"25x600 pre","lpf");
+ leg3->Draw(); 
+ c6->SaveAs("../Tesi/results_images/residuals25.eps");
+
+ TCanvas * c7 = new TCanvas("c","c",700,700);
+ c7->cd();
+ c7->SetFrameFillStyle(1000);
+ c7->SetFrameFillColor(0);
+ h3->DrawNormalized();
+ h3->GetYaxis()->SetRangeUser(0,3000);
+ h33->SetLineStyle(2);
+ h33->DrawNormalized("same");
+ tPrel3->DrawLatex(0.09821429,0.9194523,"Test Beam FNAL, December2015 & May2016, Dut=RSPA");
+ leg3->Draw(); 
+ c7->SaveAs("../Tesi/results_images/residuals25Norm.eps");
+
+
+
+
+
+
+  */
+
+  //all clustersize before
+ TFile * f6 = new TFile("../RSPA_dec/50x300/Chewie_Runs581_592_nofit.root");
+ TFile * f7 = new TFile(" ../RSPA_dec/25x600/Chewie_Runs581_592_smallerWindows.root");
+ TDirectoryFile * d6  = f6->Get("Resolution/Dut0/YResiduals");
+ d6->cd();
+ TH1F * h6 = d6->Get("hYResidualCalculatedSize2_Dut0");
+ h6->SetLineStyle(2);
+ h6->SetLineColor(kRed);
+ h6->DrawNormalized("same");
+ TDirectoryFile * d7  = f7->Get("Resolution/Dut0/YResiduals");
+ d7->cd();
+ TH1F * h7 = d7->Get("hYResidualCalculatedSize2_Dut0");
+ TFile * f9 = new TFile("../IrradiatedSensors/May2016TestBeam/25x600/Chewie_Runs315_318_noFit.root");
+ TFile * f8 = new TFile(" ../IrradiatedSensors/May2016TestBeam/50x300/Chewie_Runs314_325_noFit.root");
+ TDirectoryFile * d9  = f9->Get("Resolution/Dut2/YResiduals");
+ d9->cd();
+ TH1F * h5 = d9->Get("hYResidualCalculatedSize2_Dut2");
+ h5->SetTitle("");
+ h5->SetLineColor(kAzure);
+ h5->DrawNormalized("same");
+ TDirectoryFile * d8  = f8->Get("Resolution/Dut2/YResiduals");
+ d8->cd();
+ TH1F * h8 = d8->Get("hYResidualCalculatedSize2_Dut2");
+
+ TCanvas * c8 = new TCanvas("c","c",700,700);
+ c8->cd();
+ c8->SetFrameFillStyle(1000);
+ c8->SetFrameFillColor(0);
+ // d5->cd();
+
+ // d4->cd();
+ // TH1F * h8  = d4->Get("hYResidualCalculatedSize2_Dut2");
+ // h4 ->SetLineStyle(2);
+ h8->SetLineColor(kRed);
+ h8->DrawNormalized("same");
+ // d3->cd();
+ //TH1F * h7 = d3->Get("hYResidualCalculatedSize2_Dut0");
+ h7->SetTitle("");
+ h7->SetLineColor(kAzure);
+ h7->SetLineStyle(2);
+ h7->DrawNormalized("same");
+ //d2->cd();
+ //TH1F * h6  = d2->Get("hYResidualCalculatedSize2_Dut0");
+ h6->SetLineStyle(2);
+ h6->SetLineColor(kRed);
+ h6->DrawNormalized("same");
+ tPrel3->DrawLatex(0.09821429,0.9194523,"Test Beam FNAL, May2016, Dut=RSPA");
+ TLegend *leg5= new TLegend(0.7,0.671131,0.88,0.8809524);//,NULL,"brNDC");                                                                           
+ leg5->SetBorderSize(1);
+ leg5->SetLineColor(0);
+ leg5->SetLineStyle(1);
+ leg5->SetLineWidth(2);
+ leg5->SetFillColor(0);
+ leg5->SetFillStyle(0);
+ leg5->SetTextSize(0.02);
+ leg5->AddEntry(h6,"50x300 pre","lpf");
+ leg5->AddEntry(h7,"25x600 pre","lpf");
+ leg5->AddEntry(h8,"50x300 after","lpf");
+ leg5->AddEntry(h5,"25x600 after","lpf");
+ leg5->Draw();
+ c8->SaveAs("../Tesi/results_images/residualsAsyNorm.eps");
+ TCanvas * c9 = new TCanvas("c","c",700,700);
+ c9->cd();
+ c9->SetFrameFillStyle(1000);
+ c9->SetFrameFillColor(0);
+ h8->Draw();
+ h8->GetYaxis()->SetRangeUser(0,3000);
+ h5->Draw("same");
+ h6->Draw("same");
+ h7->Draw("same");
+ tPrel3->DrawLatex(0.09821429,0.9194523,"Test Beam FNAL, May2016, Dut=RSPA");
+ leg5->Draw();
+ c9->SaveAs("../Tesi/results_images/residualsAsy.eps");
+
+
+
+
+
+
+}

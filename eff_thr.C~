@@ -1,0 +1,64 @@
+#include <TROOT.h>
+#include <TCanvas.h>
+#include <TGaxis.h>
+#include <TStyle.h>
+#include <TFile.h>
+#include <TH1D.h>
+#include <TH2D.h>
+#include <TF1.h>
+#include <TMath.h>
+#include <TFitResult.h>
+#include <TGraph.h>
+#include <TLegend.h>
+
+#define points 4
+
+
+int eff_thr()
+{
+  string outputFile;
+  outputFile = "thr_scan.root";
+  TFile f(outputFile.c_str(),"recreate");
+
+  float thr[points];
+  float eff[points];
+
+  thr[0]=90;  
+  thr[1]=100;
+  thr[2]=110;
+  thr[3]=130;
+
+  eff[0]=99.54;
+  eff[1]=99.76;
+  eff[2]=99.91;
+  eff[3]=91.26;
+
+
+  TCanvas *c1 = new TCanvas("c1", "efficiency vs threshold", 200, 10, 700, 700);
+  TGraph* effThr = new TGraph(points,thr,eff);
+  effThr->SetTitle(" ");
+  effThr->GetXaxis()->SetTitle("threshold (V_{cal})");
+  effThr->GetYaxis()->SetTitle("efficiency ");
+  effThr->GetYaxis()->SetLabelSize(0.02);
+  effThr->GetYaxis()->SetTitleOffset(1.4);
+  effThr->GetYaxis()->SetRangeUser(90.5,100);
+  effThr->SetMarkerSize(1);
+  effThr->SetMarkerStyle(8);
+
+  TLatex * tPrel = new TLatex();
+
+  tPrel->SetNDC();
+  tPrel->SetTextColor(kBlack);
+  tPrel->SetTextSize(0.03);
+  tPrel->SetTextFont(42);
+
+
+  effThr->Draw("AP");
+  tPrel->DrawLatex(0.09821429,0.9194523,"Test Beam FNAL, December2015, RSPA, 25 #mum");
+  TString effPlot = "thrScanForEff.eps";
+  c1->SaveAs(effPlot);
+
+  c1->Write();
+ 
+
+}

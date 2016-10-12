@@ -1,0 +1,641 @@
+//root -l
+//.L makeSP_plot.C
+//main("Chewie_Runs581_592_smallWindows.root")
+#include <stdio.h>
+#include "TCanvas.h"
+#include "TF1.h"
+#include <TTreeFormula.h>
+#include <TMath.h>
+#include <Rtypes.h>
+#include <TROOT.h>
+#include <TVectorT.h>
+#include <TMap.h>
+#include <TAxis.h>
+void DrawTH2(TH2F* h2, TString name, double range=-1.,TString zone, TString testbeam);
+void DrawTH1(TH1F* h1, TString name, TString zone, int fitstat=0, int entries, TString testbeam);
+
+//landau
+double langaus(double *x, double *par);
+void FitTH1(TH1F* h1, TString name, TString zone, int fitstat=0, int entries, TString testbeam);
+
+
+
+int main(TString inputfile, TString zone, TString testbeam, TString option){
+
+
+    gROOT->SetStyle("Plain");
+    gStyle->SetPadGridX(0);
+    gStyle->SetPadGridY(0);
+    gStyle->SetPalette(1);
+    gStyle->SetOptStat(0);
+    TString dut;
+
+    if(testbeam == "December2015") dut="Dut0";
+    if(testbeam == "May2016") dut="Dut2";
+    if(testbeam == "June2016") dut="Dut1";
+    //   std::cout<<" WARNING "<< "make sure directory plots"+zone+runs<<"  exixsts"<<std::endl;
+
+    TFile * f = new TFile(inputfile);//"Chewie_Runs1359_1369_25x600.root");
+    f->cd();
+
+    if(option == "eff+charge")    
+      {
+	//Efficiency
+	
+	TDirectoryFile*d0 =(TDirectoryFile*)f->Get("Efficiency/"+dut+"/Efficiency");
+	double range1 =0.95;
+	DrawTH2((TH2F*)d0->Get("2DEfficiency_"+dut), "2DEfficiency", range1, zone, testbeam);
+		
+        //Cluster Size
+	if(zone == "25")
+	  {
+	    TDirectoryFile*d =(TDirectoryFile*)f->Get("Charge/"+dut+"/ClusterSize4Rows25x600");
+	    DrawTH2((TH2F*)d->Get("h2DClusterSize4Rows_"+dut), "2DClusterSize4Rows", -1, zone, testbeam);
+	    DrawTH1((TH1F*)d->Get("h1DClusterSize4RowsYProjection_"+dut),"4RowsClusterSizeYProjection", zone, 0, 0, testbeam);
+	  }
+      }
+
+    //Landau
+    if(option == "landau")
+      {
+	TDirectoryFile*d1 =(TDirectoryFile*)f->Get("Charge/"+dut+"/Landau");
+	DrawTH1((TH1F*)d1->Get("hLandauClusterSize1_"+dut),"hLandauClusterSize1", zone, 0, 1, testbeam);
+	DrawTH1((TH1F*)d1->Get("hCellLandauSinglePixel_"+dut),"hCellLandauSinglePixel", zone, 0, 1, testbeam);
+	DrawTH1((TH1F*)d1->Get("hLandauClusterSize2_"+dut),"hLandauClusterSize2", zone, 0, 1, testbeam);
+	DrawTH1((TH1F*)d1->Get("hLandauClusterSize3_"+dut),"hLandauClusterSize3", zone, 0, 1, testbeam);
+	DrawTH1((TH1F*)d1->Get("hLandauClusterSize4_"+dut),"hLandauClusterSize4", zone, 0, 1, testbeam);
+
+        FitTH1((TH1F*)d1->Get("hLandauClusterSize1_"+dut),"hLandauClusterSize1Fit", zone, 0, 1, testbeam);
+        FitTH1((TH1F*)d1->Get("hLandauClusterSize2_"+dut),"hLandauClusterSize2Fit", zone, 0, 1, testbeam);
+        FitTH1((TH1F*)d1->Get("hLandauClusterSize3_"+dut),"hLandauClusterSize3Fit", zone, 0, 1, testbeam);
+        FitTH1((TH1F*)d1->Get("hLandauClusterSize4_"+dut),"hLandauClusterSize4Fit", zone, 0, 1, testbeam);
+
+      }
+    if(option == "landaufitted")
+      {
+	TDirectoryFile*d1 =(TDirectoryFile*)f->Get("Charge/"+dut+"/Landau");
+	DrawTH1((TH1F*)d1->Get("hLandauClusterSize1_"+dut),"fhLandauClusterSize1", zone, 0, 1, testbeam);
+	DrawTH1((TH1F*)d1->Get("hCellLandauSinglePixel_"+dut),"fhCellLandauSinglePixel", zone, 0, 1, testbeam);
+	DrawTH1((TH1F*)d1->Get("hLandauClusterSize2_"+dut),"fhLandauClusterSize2", zone, 0, 1, testbeam);
+	DrawTH1((TH1F*)d1->Get("hLandauClusterSize3_"+dut),"fhLandauClusterSize3", zone, 0, 1, testbeam);
+	DrawTH1((TH1F*)d1->Get("hLandauClusterSize4_"+dut),"fhLandauClusterSize4", zone, 0, 1, testbeam);
+
+        FitTH1((TH1F*)d1->Get("hLandauClusterSize1_"+dut),"fhLandauClusterSize1Fit", zone, 0, 1, testbeam);
+        FitTH1((TH1F*)d1->Get("hLandauClusterSize2_"+dut),"fhLandauClusterSize2Fit", zone, 0, 1, testbeam);
+        FitTH1((TH1F*)d1->Get("hLandauClusterSize3_"+dut),"fhLandauClusterSize3Fit", zone, 0, 1, testbeam);
+        FitTH1((TH1F*)d1->Get("hLandauClusterSize4_"+dut),"fhLandauClusterSize4Fit", zone, 0, 1, testbeam);
+
+      }
+
+    if(option == "eff+charge")
+      {
+        //Asymmetry
+	TDirectoryFile*d2 =(TDirectoryFile*)f->Get("Charge/"+dut+"/YAsimmetry");
+	DrawTH1((TH1F*)d2->Get("hYAsimmetry_"+dut),"hYAsimmetry", zone, 0, 1, testbeam);
+	DrawTH2((TH2F*)d2->Get("h2DYcellChargeAsimmetry_"+dut),"h2DYcellChargeAsimmetry", -1, zone, testbeam);
+	DrawTH2((TH2F*)d2->Get("h2DYcellChargeAsimmetryInv_"+dut),"h2DYcellChargeAsimmetryInv",-1, zone, testbeam);
+	DrawTH2((TH2F*)d2->Get("h2DYcellChargeAsimmetryInvCutOnEntries_"+dut),"YCellChargeAsimmetryCutOnEntries",-1, zone, testbeam);
+	DrawTH1((TH1F*)d2->Get("h1DYcellChargeAsimmetry_"+dut),"h1DYcellChargeAsimmetry", zone, 0, 0, testbeam);
+	DrawTH1((TH1F*)d2->Get("h1DYcellChargeAsimmetryInv_"+dut),"h1DYcellChargeAsimmetryInv", zone, 0, 0, testbeam);
+	
+	//Charge 2D
+	/*	TDirectoryFile*d3 =(TDirectoryFile*)f->Get("Charge/"+dut+"/2DCellCharge");
+	DrawTH1((TH1F*)d3->Get("h1DPixelYTrackResiduals_"+dut),"h1DPixelYTrackResiduals" , zone, 0, 1, testbeam);
+	//    DrawTH1((TH1F*)d3->Get("h1DPixelYTrackResiduals2Rows_"+dut),"h1DPixelYTrackResiduals2Rows" , zone, testbeam);
+	DrawTH2((TH2F*)d3->Get("h2DCellCharge_"+dut),"h2DCellCharge", 1, zone, testbeam);
+	DrawTH2((TH2F*)d3->Get("h2DCellClusterCharge_"+dut),"h2DCellClusterCharge", 2, zone, testbeam);
+	DrawTH2((TH2F*)d3->Get("h4CellsCharge_"+dut),"h4CellsCharge", -1 , zone, testbeam);
+	*/
+      }
+
+    if(option == "new")
+      {
+	TDirectoryFile*d3 =(TDirectoryFile*)f->Get("Charge/"+dut+"/2DCellCharge");
+	DrawTH2((TH2F*)d3->Get("h2DCellClusterChargeSizeLE2_"+dut),"h2DCellClusterChargeSizeLE2", 2, zone, testbeam);
+      }
+
+    
+    //Charge 2D 4 Rows
+    if(zone == "25")
+      {
+	TDirectoryFile*d5 =(TDirectoryFile*)f->Get("Charge/"+dut+"/2DCellCharge4Rows25x600");
+	DrawTH2((TH2F*)d5->Get("h2DCellPixelCharge4Rows_"+dut),"h2DCellPixelCharge4Rows", 5, zone, testbeam);
+	DrawTH2((TH2F*)d5->Get("h2DCellClusterCharge4Rows_"+dut),"h2DCellClusterCharge4Rows", 5, zone, testbeam);
+        DrawTH2((TH2F*)d5->Get("h2DClusterCharge4RowsClusterSize2_"+dut),"h2DCellClusterCharge4RowsSize2", 5, zone, testbeam);
+	DrawTH1((TH1F*)d5->Get("h1DPixelYTrackResiduals4Rows_"+dut),"h1DPixelYTrackResiduals4Rows" , zone, 0, 1, testbeam);
+	DrawTH2((TH2F*)d5->Get("h2DAllTracks4Rows_"+dut),"h2DAllTracks4Rows", -1 , zone, testbeam);
+	DrawTH2((TH2F*)d5->Get("h2DCellPixelCharge4RowsClusterSize2_"+dut),"h2DCellPixelCharge4RowsClusterSize2", -1 , zone, testbeam);
+	DrawTH2((TH2F*)d5->Get("h2DCellPixelCharge4RowsClusterSize2Norm_"+dut),"h2DCellPixelCharge4RowsClusterSize2Norm", -1 , zone, testbeam);
+	DrawTH2((TH2F*)d5->Get("h2DCellPixelCharge4RowsClusterSize3_"+dut),"h2DCellPixelCharge4RowsClusterSize3", -1 , zone, testbeam);
+	DrawTH2((TH2F*)d5->Get("h2DCellPixelCharge4RowsClusterSize3Norm_"+dut),"h2DCellPixelCharge4RowsClusterSize3Norm", -1 , zone, testbeam);
+	DrawTH2((TH2F*)d5->Get("h2DCellPixelCharge4RowsClusterSize4_"+dut),"h2DCellPixelCharge4RowsClusterSize4", -1 , zone, testbeam);
+	DrawTH2((TH2F*)d5->Get("h2DCellPixelCharge4RowsClusterSize4Norm_"+dut),"h2DCellPixelCharge4RowsClusterSize4Norm", -1 , zone, testbeam);
+	DrawTH2((TH2F*)d5->Get("h2DPixelChargeClusterSize4Row1vsRow2Of4Rows_"+dut),"h2DPixelChargeClusterSize4Row1vsRow2Of4Rows", 3, zone, testbeam);
+	DrawTH2((TH2F*)d5->Get("h2DPixelChargeClusterSize4Row2vsRow3Of4Rows_"+dut),"h2DPixelChargeClusterSize4Row2vsRow3Of4Rows", 3, zone, testbeam);
+	DrawTH2((TH2F*)d5->Get("h2DPixelChargeClusterSize4Row4vsRow3Of4Rows_"+dut),"h2DPixelChargeClusterSize4Row4vsRow3Of4Rows", 3, zone, testbeam);
+	DrawTH2((TH2F*)d5->Get("h2DPixelCharge4RowsClusterSize4ExternalRows1And4vs2And3_"+dut),"h2DPixelCharge4RowsClusterSize4ExternalRows1And4vs2And3", -1, zone, testbeam);
+	DrawTH2( (TH2F*)d5->Get("h2DPixelCharge4RowsClusterSize4InternalRows1And4vs2And3_"+dut),"h2DPixelCharge4RowsClusterSize4InternalRows1And4vs2And3", -1 , zone, testbeam);
+	DrawTH2( (TH2F*)d5->Get("h2DPixelCharge4RowsClusterSize2BetweenRow1vsRow2_"+dut),"h2DPixelCharge4RowsClusterSize2BetweenRow1vsRow2" ,-1, zone, testbeam);
+	DrawTH2( (TH2F*)d5->Get("h2DPixelCharge4RowsClusterSize2BetweenRow4vsRow3_"+dut),"h2DPixelCharge4RowsClusterSize2BetweenRow4vsRow3" ,-1, zone, testbeam);
+	DrawTH2( (TH2F*)d5->Get("h2DPixelChargeClusterSize2Row2vsRow3Of4Rows_"+dut),"h2DPixelChargeClusterSize2Row2vsRow3Of4Rows" ,-1, zone, testbeam);
+	DrawTH1( (TH1F*)d5->Get("h1DPixelCharge4RowsClusterSize4ExternalProfile_"+dut),"h1DPixelCharge4RowsExternalProfile", zone, 0,0, testbeam);
+	DrawTH1( (TH1F*)d5->Get("h1DPixelCharge4RowsClusterSize4InternalProfile_"+dut),"h1DPixelCharge4RowsInternalProfile", zone, 0,0, testbeam);
+	DrawTH1( (TH1F*)d5->Get("h1DClusterCharge4RowsYProjection_"+dut),"h1DClusterCharge4RowsYProfile" , zone, 0,0,testbeam);
+      }
+
+
+
+    if(zone == "50" && option == "new")
+      {
+        TDirectoryFile*d5 =(TDirectoryFile*)f->Get("Charge/"+dut+"/2DCellCharge2Rows50x300");
+	DrawTH2((TH2F*)d5->Get("h2DCellPixelCharge2RowsClusterSize1Norm_"+dut),"h2DCellPixelCharge2RowsClusterSize1Norm", -1 , zone, testbeam);
+	DrawTH2((TH2F*)d5->Get("h2DCellPixelCharge2RowsClusterSize2Norm_"+dut),"h2DCellPixelCharge2RowsClusterSize2Norm", -1 , zone, testbeam);
+	DrawTH2((TH2F*)d5->Get("h2DCellPixelCharge2RowsClusterSize3Norm_"+dut),"h2DCellPixelCharge2RowsClusterSize3Norm", -1 , zone, testbeam);
+	DrawTH2((TH2F*)d5->Get("h2DPixelChargeClusterSize2Row1vsRow2Of2Rows_"+dut),"h2DPixelChargeClusterSize2Row1vsRow2Of2Rows", -1,zone, testbeam);
+	DrawTH2((TH2F*)d5->Get("h2DPixelChargeClusterSize4Row1vsRow2Of2Rows_"+dut),"h2DPixelChargeClusterSize4Row1vsRow2Of2Rows", -1, zone, testbeam);
+      }
+    /*    DrawTH2( (TH2F*)d->Get("h2DCellCharge2RowsClusterSize_"+dut), "2DCellCharge2RowsClusterSize", -1 , zone, testbeam);
+        DrawTH1( (TH1F*)d->Get("h1DCellCharge2RowsClusterSizeYProfile_"+dut),"2RowsClusterSizeYProfile" , zone, testbeam);
+        DrawTH2( (TH2F*)d3->Get("h2DCellPixelCharge2Rows_"+dut),"h2DCellPixelCharge2Rows", -1 , zone, testbeam);
+        DrawTH2( (TH2F*)d3->Get("h2DCellClusterCharge2Rows_"+dut),"h2DCellClusterCharge2Rows", -1 , zone, testbeam);
+        DrawTH2( (TH2F*)d3->Get("h2DAllTracks2Rows_"+dut),"h2DAllTracks2Rows", -1 , zone, testbeam);
+        DrawTH2( (TH2F*)d3->Get("h2DCellPixelCharge2RowsClusterSize2_"+dut),"h2DCellPixelCharge2RowsClusterSize2", -1 , zone, testbeam);
+    DrawTH2( (TH2F*)d3->Get("h2DCellPixelCharge2RowsClusterSize1Norm_"+dut),"h2DCellPixelCharge2RowsClusterSize1Norm", -1 , zone, testbeam);
+        DrawTH2( (TH2F*)d3->Get("h2DCellPixelCharge2RowsClusterSize2Norm_"+dut),"h2DCellPixelCharge2RowsClusterSize2Norm", -1 , zone, testbeam);
+        DrawTH2( (TH2F*)d3->Get("h2DCellPixelCharge2RowsClusterSize3_"+dut),"h2DCellPixelCharge2RowsClusterSize3", -1 , zone, testbeam);
+        DrawTH2( (TH2F*)d3->Get("h2DCellPixelCharge2RowsClusterSize3Norm_"+dut),"h2DCellPixelCharge2RowsClusterSize3Norm", -1 , zone, testbeam);
+        DrawTH2( (TH2F*)d3->Get("h2DCellPixelCharge2RowsClusterSize4_"+dut),"h2DCellPixelCharge2RowsClusterSize4", -1 , zone, testbeam);
+        DrawTH2( (TH2F*)d3->Get("h2DCellPixelCharge2RowsClusterSize4Norm_"+dut),"h2DCellPixelCharge2RowsClusterSize4Norm", -1 , zone, testbeam);
+    //
+    //  DrawTH2( (TH2F*)d3->Get("h2DPixelChargeClusterSize4Row2vsRow3Of2Rows_"+dut),"h2DPixelChargeClusterSize4Row2vsRow3Of2Rows", zone, testbeam);
+    //  DrawTH2( (TH2F*)d3->Get("h2DPixelChargeClusterSize4Row4vsRow3Of2Rows_"+dut),"h2DPixelChargeClusterSize4Row4vsRow3Of2Rows", zone, testbeam);
+    //  DrawTH2( (TH2F*)d3->Get("h2DPixelCharge2RowsClusterSize4ExternalRows1And4vs2And3_"+dut),"h2DPixelCharge2RowsClusterSize4ExternalRows1And4vs2And3", zone, testbeam);
+    //     DrawTH2( (TH2F*)d3->Get("h2DPixelCharge2RowsClusterSize4InternalRows1And4vs2And3_"+dut),"h2DPixelCharge2RowsClusterSize4InternalRows1And4vs2And3", zone, testbeam);
+    //  DrawTH1( (TH1F*)d3->Get("h1DPixelCharge2RowsExternalProfile_"+dut),"h1DPixelCharge2RowsExternalProfile", zone, testbeam);
+    //  DrawTH1( (TH1F*)d3->Get("h1DPixelCharge2RowsInternalProfile_"+dut),"h1DPixelCharge2RowsInternalProfile", zone, testbeam);
+        DrawTH1( (TH1F*)d3->Get("h1DClusterCharge2RowsYProfile_"+dut),"h1DClusterCharge2RowsYProfile" , zone, testbeam); 
+    */
+  
+
+    //Residuals
+    if(option == "residuals")
+      {
+	TDirectoryFile*d8 =(TDirectoryFile*)f->Get("Resolution/"+dut+"/Errors");
+	DrawTH1( (TH1F*)d8->Get("hPredictedYErrors_"+dut),"hPredictedYErrors" , zone, 0, 1, testbeam);
+
+	TDirectoryFile*d4 =(TDirectoryFile*)f->Get("Resolution/"+dut+"/YResiduals");
+
+    if(testbeam=="December2015")
+      {
+	if(zone=="100")
+	  {
+	    DrawTH1( (TH1F*)d4->Get("hYResiduals_"+dut),"hYResiduals" , zone, 0, 1, testbeam);
+	    DrawTH1( (TH1F*)d4->Get("hYResiduals_"+dut),"hYResidualsZoom" , zone, 4, 1, testbeam);
+	    DrawTH1( (TH1F*)d4->Get("hYResidualCalculatedSize2_"+dut),"hYResidualCalculatedSize2" , zone, 3, 1, testbeam);
+	    DrawTH1( (TH1F*)d4->Get("hYResidualsClusterSize2_"+dut),"hYResidualsClusterSize2" , zone, 3, 1, testbeam);
+	  }
+	if(zone=="50")
+	  {
+	    DrawTH1( (TH1F*)d4->Get("hYResiduals_"+dut),"hYResiduals" , zone, 3, 1, testbeam);
+	    DrawTH1( (TH1F*)d4->Get("hYResidualCalculatedSize2_"+dut),"hYResidualCalculatedSize2" , zone, 3, 1, testbeam);
+	    DrawTH1( (TH1F*)d4->Get("hYResidualsClusterSize1_"+dut),"hYResidualsClusterSize1" , zone, 3, 1, testbeam);
+	    DrawTH1( (TH1F*)d4->Get("hYResidualsClusterSize2_"+dut),"hYResidualsClusterSize2" , zone, 3, 1, testbeam);
+	  }
+	if(zone=="25")
+	  {
+	    DrawTH1( (TH1F*)d4->Get("hYResiduals_"+dut),"hYResiduals" , zone, 3, 1, testbeam);
+	    DrawTH1( (TH1F*)d4->Get("hYResidualCalculatedSize2_"+dut),"hYResidualCalculatedSize2" , zone, 3, 1, testbeam);
+	    DrawTH1( (TH1F*)d4->Get("hYResidualsClusterSize2_"+dut),"hYResidualsClusterSize2" , zone, 3, 1, testbeam);
+	    TDirectoryFile*d6 =(TDirectoryFile*)f->Get("Resolution/"+dut+"/YResiduals4Rows25x600");                                                  
+	    DrawTH1( (TH1F*)d6->Get("hYResidualCalculatedSize2Row1of4Rows_"+dut),"hYResidualCalculatedSize2Row1of4Rows" , zone, 3, 1, testbeam);     
+	    DrawTH1( (TH1F*)d6->Get("hYResidualCalculatedSize2Row2of4Rows_"+dut),"hYResidualCalculatedSize2Row2of4Rows" , zone, 3, 1, testbeam);     
+	    DrawTH1( (TH1F*)d6->Get("hYResidualCalculatedSize2Row3of4Rows_"+dut),"hYResidualCalculatedSize2Row3of4Rows" , zone, 3, 1, testbeam);     
+	    DrawTH1( (TH1F*)d6->Get("hYResidualCalculatedSize2Row4of4Rows_"+dut),"hYResidualCalculatedSize2Row4of4Rows" , zone, 3, 1, testbeam);   
+	  }
+      }
+    if(testbeam=="May2016")
+      {
+	if(zone=="50")
+	  {
+	    DrawTH1( (TH1F*)d4->Get("hYResiduals_"+dut),"hYResiduals" , zone, 3, 1, testbeam);
+	    DrawTH1( (TH1F*)d4->Get("hYResidualCalculatedSize2_"+dut),"hYResidualCalculatedSize2" , zone, 3, 1, testbeam);
+	    DrawTH1( (TH1F*)d4->Get("hYResidualsClusterSize1_"+dut),"hYResidualsClusterSize1" , zone, 3, 1, testbeam);
+	    DrawTH1( (TH1F*)d4->Get("hYResidualsClusterSize2_"+dut),"hYResidualsClusterSize2" , zone, 3, 1, testbeam);
+	  }
+	if(zone=="25")
+	  {
+	    DrawTH1( (TH1F*)d4->Get("hYResiduals_"+dut),"hYResiduals" , zone, 3, 1, testbeam);
+	    DrawTH1( (TH1F*)d4->Get("hYResidualCalculatedSize2_"+dut),"hYResidualCalculatedSize2" , zone, 3, 1, testbeam);
+	    DrawTH1( (TH1F*)d4->Get("hYResidualsClusterSize2_"+dut),"hYResidualsClusterSize2" , zone, 3, 1, testbeam);
+	    TDirectoryFile*d6 =(TDirectoryFile*)f->Get("Resolution/"+dut+"/YResiduals4Rows25x600");                                                  
+	    DrawTH1( (TH1F*)d6->Get("hYResidualCalculatedSize2Row1of4Rows_"+dut),"hYResidualCalculatedSize2Row1of4Rows" , zone, 3, 1, testbeam);     
+	    DrawTH1( (TH1F*)d6->Get("hYResidualCalculatedSize2Row2of4Rows_"+dut),"hYResidualCalculatedSize2Row2of4Rows" , zone, 3, 1, testbeam);     
+	    DrawTH1( (TH1F*)d6->Get("hYResidualCalculatedSize2Row3of4Rows_"+dut),"hYResidualCalculatedSize2Row3of4Rows" , zone, 3, 1, testbeam);     
+	    DrawTH1( (TH1F*)d6->Get("hYResidualCalculatedSize2Row4of4Rows_"+dut),"hYResidualCalculatedSize2Row4of4Rows" , zone, 3, 1, testbeam);   
+	  }
+      }
+
+
+    /*
+	DrawTH1( (TH1F*)d4->Get("hYResiduals_"+dut),"hYResiduals" , zone, 1, 1, testbeam);
+	DrawTH1( (TH1F*)d4->Get("hYResidualCalculatedSize2_"+dut),"hYResidualCalculatedSize2" , zone, 1, 3, testbeam);
+    DrawTH1( (TH1F*)d4->Get("hYResidualCalculatedSize3_"+dut),"hYResidualCalculatedSize3" , zone, 1, 1, testbeam);
+    DrawTH1( (TH1F*)d4->Get("hYResidualCalculatedSize4_"+dut),"hYResidualCalculatedSize4" , zone, 1, 1, testbeam);
+    DrawTH1( (TH1F*)d4->Get("hYResidualsClusterSize1_"+dut),"hYResidualsClusterSize1" , zone, 1, 1, testbeam);
+    DrawTH1( (TH1F*)d4->Get("hYResidualsClusterSize2_"+dut),"hYResidualsClusterSize2" , zone, 1, 1, testbeam);
+    DrawTH1( (TH1F*)d4->Get("hYResidualsClusterSize3_"+dut),"hYResidualsClusterSize3" , zone, 1, 1, testbeam);
+    DrawTH1( (TH1F*)d4->Get("hYResidualsClusterSize4_"+dut),"hYResidualsClusterSize4" , zone, 1, 1, testbeam);
+    
+    if(zone == "25")
+      {
+	TDirectoryFile*d6 =(TDirectoryFile*)f->Get("Resolution/"+dut+"/YResiduals4Rows25x600");
+	DrawTH1( (TH1F*)d6->Get("hYResidualCalculatedSize2Row1of4Rows_"+dut),"hYResidualCalculatedSize2Row1of4Rows" , zone, 1, 1, testbeam);
+	DrawTH1( (TH1F*)d6->Get("hYResidualCalculatedSize2Row2of4Rows_"+dut),"hYResidualCalculatedSize2Row2of4Rows" , zone, 1, 1, testbeam);
+	DrawTH1( (TH1F*)d6->Get("hYResidualCalculatedSize2Row3of4Rows_"+dut),"hYResidualCalculatedSize2Row3of4Rows" , zone, 1, 1, testbeam);
+	DrawTH1( (TH1F*)d6->Get("hYResidualCalculatedSize2Row4of4Rows_"+dut),"hYResidualCalculatedSize2Row4of4Rows" , zone, 1, 1, testbeam);
+      }
+    */
+ }
+    if(option == "residualsfitted")
+{
+
+ 
+    TDirectoryFile*d8 =(TDirectoryFile*)f->Get("Resolution/"+dut+"/Errors");
+    DrawTH1( (TH1F*)d8->Get("hPredictedYErrors_"+dut),"hPredictedYErrors" , zone, 0, 1, testbeam);
+
+    TDirectoryFile*d4 =(TDirectoryFile*)f->Get("Resolution/"+dut+"/YResiduals");
+
+    if(testbeam=="December2015")
+      {
+	if(zone=="100")
+	  {
+	    DrawTH1( (TH1F*)d4->Get("hYResidualsClusterSize1_"+dut),"fhYResidualsClusterSize1" , zone, 2, 1, testbeam);
+            DrawTH1( (TH1F*)d4->Get("hYResiduals_"+dut),"fhYResiduals" , zone, 1, 1, testbeam);
+            DrawTH1( (TH1F*)d4->Get("hYResidualCalculatedSize2_"+dut),"fhYResidualCalculatedSize2" , zone, 1, 1, testbeam);
+            DrawTH1( (TH1F*)d4->Get("hYResidualsClusterSize2_"+dut),"fhYResidualsClusterSize2" , zone, 1, 1, testbeam);
+
+	  }
+	if(zone=="50")
+	  {
+	    DrawTH1( (TH1F*)d4->Get("hYResiduals_"+dut),"fhYResiduals" , zone, 1, 1, testbeam);
+	    DrawTH1( (TH1F*)d4->Get("hYResidualCalculatedSize2_"+dut),"fhYResidualCalculatedSize2" , zone, 1, 1, testbeam);
+	    DrawTH1( (TH1F*)d4->Get("hYResidualsClusterSize2_"+dut),"fhYResidualsClusterSize2" , zone, 1, 1, testbeam);
+	  }
+	if(zone=="25")
+	  {
+	    DrawTH1( (TH1F*)d4->Get("hYResiduals_"+dut),"fhYResiduals" , zone, 1, 1, testbeam);
+	    DrawTH1( (TH1F*)d4->Get("hYResidualCalculatedSize2_"+dut),"fhYResidualCalculatedSize2" , zone, 1, 1, testbeam);
+	    DrawTH1( (TH1F*)d4->Get("hYResidualsClusterSize2_"+dut),"fhYResidualsClusterSize2" , zone, 1, 1, testbeam);
+	    TDirectoryFile*d6 =(TDirectoryFile*)f->Get("Resolution/"+dut+"/YResiduals4Rows25x600");                                                  
+	    DrawTH1( (TH1F*)d6->Get("hYResidualCalculatedSize2Row1of4Rows_"+dut),"fhYResidualCalculatedSize2Row1of4Rows" , zone, 1, 1, testbeam);    
+	    DrawTH1( (TH1F*)d6->Get("hYResidualCalculatedSize2Row2of4Rows_"+dut),"fhYResidualCalculatedSize2Row2of4Rows" , zone, 1, 1, testbeam);    
+	    DrawTH1( (TH1F*)d6->Get("hYResidualCalculatedSize2Row3of4Rows_"+dut),"fhYResidualCalculatedSize2Row3of4Rows" , zone, 1, 1, testbeam);    
+	    DrawTH1( (TH1F*)d6->Get("hYResidualCalculatedSize2Row4of4Rows_"+dut),"fhYResidualCalculatedSize2Row4of4Rows" , zone, 1, 1, testbeam);   
+	  }
+      }
+    if(testbeam=="May2016")
+      {
+	if(zone=="50")
+	  {
+	    DrawTH1( (TH1F*)d4->Get("hYResiduals_"+dut),"fhYResiduals" , zone, 1, 1, testbeam);
+	    DrawTH1( (TH1F*)d4->Get("hYResidualCalculatedSize2_"+dut),"fhYResidualCalculatedSize2" , zone, 1, 1, testbeam);
+	    DrawTH1( (TH1F*)d4->Get("hYResidualsClusterSize2_"+dut),"fhYResidualsClusterSize2" , zone, 1, 1, testbeam);
+	  }
+	if(zone=="25")
+	  {
+	    DrawTH1( (TH1F*)d4->Get("hYResiduals_"+dut),"fhYResiduals" , zone, 1, 1, testbeam);
+	    DrawTH1( (TH1F*)d4->Get("hYResidualCalculatedSize2_"+dut),"fhYResidualCalculatedSize2" , zone, 1, 1, testbeam);
+	    DrawTH1( (TH1F*)d4->Get("hYResidualsClusterSize2_"+dut),"fhYResidualsClusterSize2" , zone, 1, 1, testbeam);
+	    TDirectoryFile*d6 =(TDirectoryFile*)f->Get("Resolution/"+dut+"/YResiduals4Rows25x600");                                                  
+	    DrawTH1( (TH1F*)d6->Get("hYResidualCalculatedSize2Row1of4Rows_"+dut),"fhYResidualCalculatedSize2Row1of4Rows" , zone, 1, 1, testbeam);    
+	    DrawTH1( (TH1F*)d6->Get("hYResidualCalculatedSize2Row2of4Rows_"+dut),"fhYResidualCalculatedSize2Row2of4Rows" , zone, 1, 1, testbeam);    
+	    DrawTH1( (TH1F*)d6->Get("hYResidualCalculatedSize2Row3of4Rows_"+dut),"fhYResidualCalculatedSize2Row3of4Rows" , zone, 1, 1, testbeam);    
+	    DrawTH1( (TH1F*)d6->Get("hYResidualCalculatedSize2Row4of4Rows_"+dut),"fhYResidualCalculatedSize2Row4of4Rows" , zone, 1, 1, testbeam);   
+	  }
+      }
+
+
+
+
+ }
+
+
+}
+
+
+void DrawTH2(TH2F* h2, TString name, double range, TString zone, TString testbeam)
+{
+
+    TCanvas * c = new TCanvas("c","c",700,700);
+    c->cd();
+    c->Range(-1.5,35.125,13.5,183.875);
+    c->SetFrameFillStyle(1000);
+    c->SetFrameFillColor(0);
+
+    h2->SetTitle("");
+    h2->GetXaxis()->SetLabelFont(42);
+    h2->GetXaxis()->SetLabelSize(0.025);
+    h2->GetXaxis()->SetTitleSize(0.035);
+    h2->GetXaxis()->SetTitleOffset(0.8);
+    h2->GetXaxis()->SetTitleFont(42);
+    h2->GetYaxis()->SetLabelFont(42);
+    h2->GetYaxis()->SetLabelSize(0.025);
+    h2->GetYaxis()->SetTitleSize(0.035);
+    h2->GetYaxis()->SetTitleOffset(1.4);
+    h2->GetYaxis()->SetTitleFont(42);
+
+
+    TPaletteAxis *palette = new TPaletteAxis(h2->GetXaxis()->GetXmax()+0.01,h2->GetYaxis()->GetXmin(),h2->GetXaxis()->GetXmax()+h2->GetXaxis()->GetXmax()*0.048,h2->GetYaxis()->GetXmax(),h2);
+    palette->SetLabelColor(1);
+    palette->SetLabelFont(42);
+    palette->SetLabelOffset(0.005);
+    palette->SetLabelSize(0.025);
+//    palette->SetTitleOffset(1);
+    palette->SetTitleSize(0.04);
+    palette->SetFillColor(100);
+    palette->SetFillStyle(1001);
+
+    palette->SetX1NDC(0.9);
+    palette->SetX2NDC(0.95);
+    palette->SetY1NDC(0.2);
+    palette->SetY2NDC(0.8);
+    h2->GetListOfFunctions()->Add(palette,"br");
+
+    if(range == 0.95) {std::cout<<range<<std::endl; h2->GetZaxis()->SetRangeUser(range,1.);}
+    if(testbeam == "December2015")
+      {
+	if(range == 1) h2->GetZaxis()->SetRangeUser(12000,29000);
+	if(range == 2) h2->GetZaxis()->SetRangeUser(26000,35000);
+	if(range == 3) h2->GetZaxis()->SetRangeUser(0,160);
+        if(range == 5) h2->GetZaxis()->SetRangeUser(5000,35000);
+      }
+    if(testbeam == "May2016")
+      {
+	if(range == 1) h2->GetZaxis()->SetRangeUser(12000,29000);
+	if(range == 2) h2->GetZaxis()->SetRangeUser(16000,29000);
+        if(range == 5) h2->GetZaxis()->SetRangeUser(5000,35000);
+      }
+    h2->Draw("COLZ");
+
+    TLatex * tPrel = new TLatex();
+
+    tPrel->SetNDC();
+    tPrel->SetTextColor(kBlack);
+    tPrel->SetTextSize(0.03);
+    tPrel->SetTextFont(42);
+    tPrel->DrawLatex(0.09821429,0.9194523,"Test Beam FNAL, "+testbeam+", RSPA, "+zone+" #mum");
+
+
+
+    c->SaveAs("../Tesi/results_images/"+testbeam+"/"+zone+"/"+name+".eps");
+    delete c;
+    delete palette;
+
+}
+
+
+void DrawTH1(TH1F* h1, TString name, TString zone, int fitstat, int entries, TString testbeam){
+
+    TCanvas * c = new TCanvas("c","c",700,700);
+    c->cd();
+    c->SetFrameFillStyle(1000);
+    c->SetFrameFillColor(0);
+
+    if(fitstat != 0)
+      {
+	gStyle->SetStatY(0.9);
+	gStyle->SetStatX(0.9);
+	gStyle->SetStatW(0.15);
+	gStyle->SetStatH(0.2); 
+      }
+
+    gStyle->SetOptStat(0);
+    h1->SetTitle("");
+    if(entries == 1)
+      h1->GetYaxis()->SetTitle("Entries");
+    h1->GetXaxis()->SetLabelFont(42);
+    h1->GetXaxis()->SetLabelSize(0.025);
+    h1->GetXaxis()->SetTitleSize(0.035);
+    h1->GetXaxis()->SetTitleOffset(0.8);
+    h1->GetXaxis()->SetTitleFont(42);
+    h1->GetYaxis()->SetLabelFont(42);
+    h1->GetYaxis()->SetLabelSize(0.025);
+    h1->GetYaxis()->SetTitleSize(0.035);
+    h1->GetYaxis()->SetTitleOffset(1.4);
+    h1->GetYaxis()->SetTitleFont(42);
+    if(fitstat==1)
+      gStyle->SetOptFit(1111);
+    if(fitstat==4)
+      {
+	h1->GetXaxis()->SetRangeUser(-50,50);
+	  gStyle->SetOptStat(1);
+      }
+    
+    h1->Draw("");
+
+    TLatex * tPrel = new TLatex();
+
+    tPrel->SetNDC();
+    tPrel->SetTextColor(kBlack);
+    tPrel->SetTextSize(0.03);
+    tPrel->SetTextFont(42);
+    tPrel->DrawLatex(0.09821429,0.9194523,"Test Beam FNAL, "+testbeam+", RSPA, "+zone+" #mum");
+
+    if(fitstat==1 )
+      {
+        gStyle->SetOptFit(1);
+        TF1* func;
+        func = h1->GetFunction("gaus");
+        func->SetLineColor(kBlue);
+      }
+    if(fitstat==2)
+      {    
+	gStyle->SetOptFit(1);
+        TF1* func;
+        func = h1->GetFunction("fSmearedSquare");
+        func->SetLineColor(kBlue);
+      }
+    if(fitstat==3)
+      {
+        gStyle->SetOptFit(1);
+	if(zone=="25" || (testbeam=="May2016" && zone =="50"))
+	  TF1* func = new TF1("func","gaus",-20,20);
+	//        if(zone=="50")
+	//          TF1* func = new TF1("func","gaus",-30,30);
+	else
+	  TF1* func = new TF1("func","gaus",-50,50);
+
+	func->SetLineColor(kBlue);
+        h1->Fit("func","QR");
+
+      }
+
+
+    if(fitstat ==1 || fitstat ==2)
+      c->SaveAs("../Tesi/results_images/"+testbeam+"/"+zone+"/"+name+"Fit.eps");
+    if(fitstat == 3)
+      c->SaveAs("../Tesi/results_images/"+testbeam+"/"+zone+"/"+name+"Gauss.eps");
+    else
+      c->SaveAs("../Tesi/results_images/"+testbeam+"/"+zone+"/"+name+".eps");
+    //    delete c;
+
+}
+
+void FitTH1(TH1F* h1, TString name, TString zone, int fitstat, int entries, TString testbeam){
+
+  gROOT->SetStyle("Plain");
+  TCanvas * c = new TCanvas("c","c",700,700);
+  c->cd();
+  c->SetFrameFillStyle(1000);
+  c->SetFrameFillColor(0);
+
+
+  h1->SetTitle("");
+  h1->GetXaxis()->SetLabelFont(42);
+  h1->GetXaxis()->SetLabelSize(0.025);
+  h1->GetXaxis()->SetTitleSize(0.035);
+  h1->GetXaxis()->SetTitleOffset(0.8);
+  h1->GetXaxis()->SetTitleFont(42);
+  h1->GetYaxis()->SetLabelFont(42);
+  h1->GetYaxis()->SetLabelSize(0.025);
+  h1->GetYaxis()->SetTitleSize(0.035);
+  h1->GetYaxis()->SetTitleOffset(1.4);
+  h1->GetYaxis()->SetTitleFont(42);
+  if(entries == 1)
+    h1->GetYaxis()->SetTitle("Entries");
+
+
+
+  h1->Draw("");
+  TF1 * langaus_ = new TF1("langaus",langaus,0,60000,4);
+  langaus_->SetParNames("Width","MPV","Area","GSigma");
+  langaus_->SetLineColor(kBlue);
+
+
+  TAxis* xAxis           ;
+  double range           ;
+  double integral        ;
+  double gausPar      [3];
+  double landauPar    [3];
+  double fitRange     [2];
+  double startValues  [4];
+  double parsLowLimit [4];
+  double parsHighLimit[4];
+
+  TF1* landau = new TF1("myLandau","landau",0,60000);
+  TF1* gaus   = new TF1("myGaus"  ,"gaus"  ,0,60000);
+
+  //  fitRange[0]=0.4*(h1->GetMean());                                                                                                                
+  //  fitRange[1]=1.8*(h1->GetMean());                                                                                                                
+  fitRange[0]=0.55*(h1->GetMean());
+  fitRange[1]=1.1*(h1->GetMean());
+
+  gaus->SetRange(fitRange[0],fitRange[1]);
+  h1->Fit(gaus,"0QR");
+  gaus->Draw("same");
+  for(int p=0; p<3; p++){
+    gausPar[p] = gaus->GetParameter(p);
+    std::cout<<  gausPar[p] <<std::endl;
+  }
+
+  landau->SetRange(fitRange[0],fitRange[1]);
+  h1->Fit(landau,"0QR");//  landau->Draw("sames");    for(int p=0; p<3; p++){
+  for(int p=0; p<3; p++){
+  landauPar[p] = landau->GetParameter(p);
+  std::cout<<  landauPar[p] <<std::endl;
+}
+
+xAxis    = h1->GetXaxis();
+range    = xAxis->GetXmax() - xAxis->GetXmin();
+integral = ((h1->Integral())*range)/(h1->GetNbinsX());
+std::cout<< range << "   "<<integral<<std::endl;
+
+startValues[0]=landauPar[2];
+startValues[1]=landauPar[1];
+startValues[2]=integral    ;
+startValues[3]=gausPar[2]  ;
+
+parsLowLimit [0] = startValues[0] - 0.68*startValues[0];
+parsHighLimit[0] = startValues[0] + 0.68*startValues[0];
+parsLowLimit [1] = startValues[1] - 0.68*startValues[1];
+parsHighLimit[1] = startValues[1] + 0.68*startValues[1];
+parsLowLimit [2] = startValues[2] - 0.68*startValues[2];
+parsHighLimit[2] = startValues[2] + 0.68*startValues[2];
+parsLowLimit [3] = startValues[3] - 0.68*startValues[3];
+parsHighLimit[3] = startValues[3] + 0.68*startValues[3];
+
+langaus_->SetRange(fitRange[0]-5000.,fitRange[1]);
+langaus_->SetParameters(startValues);
+
+for (int p=0; p<4; p++) {
+  langaus_->SetParLimits(p, parsLowLimit[p], parsHighLimit[p]);
+  std::cout<<parsLowLimit[p]<<std::endl;
+ }
+h1->Fit(langaus_,"QRBL");
+
+//langaus_->GetParameters(fitParameters);                                                                                                           
+langaus_->Draw("sames");
+
+TLatex * tPrel = new TLatex();
+
+tPrel->SetNDC();
+tPrel->SetTextColor(kBlack);
+tPrel->SetTextSize(0.03027386);
+tPrel->SetTextFont(42);
+tPrel->DrawLatex(0.09821429,0.9194523,"Test Beam FNAL, "+testbeam+", RSPA, "+zone+" #mum");
+gStyle->SetOptStat(0);
+//  gStyle->SetStatColor(kWhite);                                                                                                                   
+//gStyle->SetStatFont(42);                                                                                                                          
+//gStyle->SetStatFontSize(0.025);                                                                                                                   
+//gStyle->SetStatTextColor(1);                                                                                                                      
+//gStyle->SetStatFormat("6.4g");                                                                                                                    
+// gStyle->SetStatBorderSize(1);                                                                                                                    
+gStyle->SetStatH(0.2);
+gStyle->SetStatW(0.2);
+//gStyle->SetStatStyle(1001);                                                                                                                       
+gStyle->SetStatX(0.9);
+gStyle->SetStatY(0.9);
+
+
+gStyle->SetOptFit(1);
+c->Update();
+
+c->SaveAs("../Tesi/results_images/"+testbeam+"/"+zone+"/"+name+".eps");
+//delete c;                                                                                                                                         
+}
+double langaus(double *x, double *par)
+{
+  double invsq2pi = 0.3989422804014;   // (2 pi)^(-1/2)                                                                                            
+  double mpshift  = -0.22278298;       // Landau maximum location                                                                                  
+
+  double np = 100.0;      // number of convolution steps                                                                                           
+  double sc =   5.0;      // convolution extends to +-sc Gaussian sigmas                                                                           
+
+  double xx;
+  double mpc;
+  double fland;
+  double sum = 0.0;
+  double xlow,xupp;
+  double step;
+  double i;
+
+
+  mpc = par[1] - mpshift * par[0];
+
+  xlow = x[0] - sc * par[3];
+  xupp = x[0] + sc * par[3];
+
+  step = (xupp-xlow) / np;
+
+  for(i=1.0; i<=np/2; i++) {
+    xx = xlow + (i-.5) * step;
+    fland = TMath::Landau(xx,mpc,par[0]) / par[0];
+    sum += fland * TMath::Gaus(x[0],xx,par[3]);
+
+    xx = xupp - (i-.5) * step;
+    fland = TMath::Landau(xx,mpc,par[0]) / par[0];
+    sum += fland * TMath::Gaus(x[0],xx,par[3]);
+  }
+  //  std::cout<<" result "<<(par[2] * step * sum * invsq2pi / par[3])<<std::endl;;                                                                  
+  return (par[2] * step * sum * invsq2pi / par[3]);
+}
